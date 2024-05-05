@@ -19,7 +19,6 @@ export interface IOrder {
 }
 
 export interface IProductsData {
-	// total:number,
 	items: IProduct[],
 	preview: string | null,
 	basket: IProduct[],
@@ -29,21 +28,10 @@ export interface IProductsData {
 	getProduct(productId: string):IProduct,
 	checkValidation(data: Record<keyof TProductModal, string>):boolean,
 }
-// export interface ICatalogData extends IProductsData{
-// 	preview: string | null,
-// }
-//
-// export interface IBasketData extends IProductsData{
-// 	basket: IProduct[],
-// 	addProduct(product: IProduct, payload: Function | null):void,
-// 	removeProduct(productID: string, payload: Function | null):void,
-// }
 
-// export interface IUserData {
-// 	getUserInfo(): IUser;
-// 	setUserInfo(userData: IUser): void;
-// 	checkUserValidation(data: Record<keyof IUser, string>): boolean;
-// }
+export interface IOrderData {
+	order: IOrder,
+}
 
 export type TProductCatalog = Pick<IProduct, "title"| "image" | "category" | "price" >
 export type TProductModal = Pick<IProduct, "title" | "description" | "image" | "category" | "price" >
@@ -79,6 +67,6 @@ enum enumPaymentCategory {
 	"offline",
 }
 
-type paymentCategory = keyof typeof enumPaymentCategory;
+export type paymentCategory = keyof typeof enumPaymentCategory;
 
 
