@@ -97,14 +97,16 @@ export type TProductModal = Pick<IProduct, "title" | "description" | "image" | "
 export type TProductBasket = Pick<IProduct, "title" | "price" >
 ```
 
-Интерфейс пользователя, в данном приложении с данными пользователя не производится никаких действий, однако будем их сохранять
+Интерфейс запроса покупки
 
 ```
-export interface IUser {
+export interface IOrder {
 	payment: paymentCategory,
-	address: string,
 	email: string,
-	telephone: string,
+	phone: string,
+	address: string,
+	total: number,
+	items: string[]	
 }
 ```
 
@@ -250,6 +252,7 @@ export interface IUser {
 
 *Список всех событий, которые могут генерироваться в системе:*\
 *События изменения данных (генерируются классами моделями данных)*
+- `products:changed` - изменение массива товаров
 - `product:selected` - выбор товара для показа в модальном окне
 - `product:previewClear` - необходима очистка данных выбранного для показа в модальном окне товара
 - `basket:change` - изменение статуса у товара (куплен/не куплен)
