@@ -133,3 +133,28 @@ export function createElement<
     }
     return element;
 }
+
+export function formatNumber(x: number, sep = ' ') {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+}
+
+export function checkItemCategory(category:string):string {
+    let additionalClass = "";
+    switch (category){
+        case 	"софт-скил":
+            additionalClass = "_soft";
+            break;
+        case "другое":
+            additionalClass = "_other";
+            break;
+        case "дополнительное":
+            additionalClass = "_additional";
+            break;
+        case "кнопка":
+            additionalClass = "_button";
+            break;
+        case "хард-скил":
+            additionalClass = "_hard"
+    }
+    return additionalClass
+}

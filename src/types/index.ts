@@ -6,7 +6,7 @@ export interface IProduct {
 	image: string,
 	title: string,
 	category: productCategory,
-	price: number,
+	price: number | null,
 }
 
 export interface IOrder {
@@ -20,22 +20,22 @@ export interface IOrder {
 
 export interface IProductsData {
 	items: IProduct[],
-	preview: string | null,
+	// preview: string | null,
 	basket: IProduct[],
-	addProduct(product: IProduct, payload: Function | null):void,
-	deleteProduct(productID: string, payload: Function | null):void,
-	updateProduct(product: IProduct, payload: Function | null):void,
-	getProduct(productId: string):IProduct,
-	checkValidation(data: Record<keyof TProductModal, string>):boolean,
+	addProduct(product: IProduct, payload: Function | null): void,
+	deleteProduct(productID: string, payload: Function | null): void,
+	updateProduct(product: IProduct, payload: Function | null): void,
+	getProduct(productId: string): IProduct,
+	checkValidation(data: Record<keyof TProductModal, string>): boolean,
 }
 
 export interface IOrderData {
 	order: IOrder,
 }
 
-export type TProductCatalog = Pick<IProduct, "title"| "image" | "category" | "price" >
-export type TProductModal = Pick<IProduct, "title" | "description" | "image" | "category" | "price" >
-export type TProductBasket = Pick<IProduct, "title" | "price" >
+export type TProductCatalog = Pick<IProduct, 'title' | 'image' | 'category' | 'price'>
+export type TProductModal = Pick<IProduct, 'title' | 'description' | 'image' | 'category' | 'price'>
+export type TProductBasket = Pick<IProduct, 'title' | 'price'>
 
 export interface IApi {
 	baseUrl: string;
@@ -44,27 +44,27 @@ export interface IApi {
 }
 
 export interface IApiSuccess {
-	id : string,
+	id: string,
 	total: number,
 }
 
 export interface IApiError {
-	error : string,
+	error: string,
 }
 
 enum enumProductCategory {
-	"софт-скил",
-	"хард-скил",
-	"кнопка",
-	"дополнительное",
-	"другое"
+	'софт-скил',
+	'хард-скил',
+	'кнопка',
+	'дополнительное',
+	'другое'
 }
 
-type productCategory = keyof typeof enumProductCategory;
+export type productCategory = keyof typeof enumProductCategory;
 
 enum enumPaymentCategory {
-	"online",
-	"offline",
+	'online',
+	'offline',
 }
 
 export type paymentCategory = keyof typeof enumPaymentCategory;
