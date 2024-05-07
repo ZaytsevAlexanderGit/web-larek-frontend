@@ -10,7 +10,7 @@ export interface IProduct {
 }
 
 export interface IOrder {
-	payment: paymentCategory,
+	payment: string,
 	email: string,
 	phone: string,
 	address: string,
@@ -18,15 +18,18 @@ export interface IOrder {
 	items: string[]
 }
 
+export type IOrderForm = Pick<IOrder, 'payment' | 'address'>
+
+export type IContactsForm = Pick<IOrder, 'email' | 'phone'>
+
 export interface IProductsData {
 	items: IProduct[],
-	// preview: string | null,
 	basket: IProduct[],
 	addProduct(product: IProduct, payload: Function | null): void,
 	deleteProduct(productID: string, payload: Function | null): void,
 	updateProduct(product: IProduct, payload: Function | null): void,
 	getProduct(productId: string): IProduct,
-	checkValidation(data: Record<keyof TProductModal, string>): boolean,
+	// checkValidation(data: Record<keyof TProductModal, string>): boolean,
 }
 
 export interface IOrderData {
@@ -62,11 +65,11 @@ enum enumProductCategory {
 
 export type productCategory = keyof typeof enumProductCategory;
 
-enum enumPaymentCategory {
-	'online',
-	'offline',
-}
-
-export type paymentCategory = keyof typeof enumPaymentCategory;
-
+// enum enumPaymentCategory {
+// 	'online',
+// 	'offline',
+// }
+//
+// export type paymentCategory = keyof typeof enumPaymentCategory extends String;
+//
 

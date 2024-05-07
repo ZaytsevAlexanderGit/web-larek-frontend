@@ -1,4 +1,4 @@
-import { IProduct, IProductsData, TProductModal } from '../types';
+import { IProduct, IProductsData } from '../types';
 import { IEvents } from './base/events';
 
 export class ProductsData implements IProductsData {
@@ -48,6 +48,11 @@ export class ProductsData implements IProductsData {
 		this.events.emit('basket:changed');
 	}
 
+	get basketTotalPrice(): number {
+		return this.basket.reduce(
+			(accum, currentValue) => accum + currentValue.price, 0);
+	}
+
 	addProduct(item: IProduct) {
 		this._items = [item, ...this._items];
 		this.events.emit('products:changed');
@@ -78,10 +83,10 @@ export class ProductsData implements IProductsData {
 		return this._items.find((item) => item.id === productId);
 	}
 
-	//Подумать как сделать
-	checkValidation(data: Record<keyof TProductModal, string>): boolean {
-		return true;
-	}
+	// //Подумать как сделать
+	// checkValidation(data: Record<keyof TProductModal, string>): boolean {
+	// 	return true;
+	// }
 
 	addToBasket(product: IProduct, payload: Function | null = null) {
 		const findedItem = this._items.find((item) => item.id === product.id);

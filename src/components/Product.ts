@@ -69,7 +69,7 @@ export class Product extends Component<IProduct> {
 
 		if (this.deleteButton)
 			this.deleteButton.addEventListener('click', () =>
-				this.events.emit('basket:deleteProduct', { product: this }),
+				this.events.emit('basket:deleteProduct', { id: this.productId }),
 			);
 
 		if (this.buyButton)
@@ -102,6 +102,8 @@ export class Product extends Component<IProduct> {
 	set category(category: productCategory) {
 		if (this.productCategory) {
 			this.productCategory.textContent = category;
+			this.productCategory.className = '';
+			this.productCategory.classList.add('card__category');
 			this.productCategory.classList.add(
 				`card__category${checkItemCategory(category)}`);
 		}
@@ -126,24 +128,26 @@ export class Product extends Component<IProduct> {
 
 	render(data?: Partial<IProduct>): HTMLElement;
 	render(productData: Partial<IProduct>,
-				 possibility: { aval: boolean, text: string }): HTMLElement;
-	render(productData: Partial<IProduct>,
-				 possibility: { aval: boolean, text: string },
-				 index: number): HTMLElement;
+				 options: { aval: boolean, text: string } | number): HTMLElement;
 
 	render(productData: Partial<IProduct> | undefined,
-				 possibility?: { aval: boolean, text: string } | null, index?: number) {
+				 options?: { aval: boolean, text: string } | number) {
 		if (!productData) return this.container;
+		if (this.productImage)
+			this.productImage.alt = productData.title;
 
-		this.productImage.alt = productData.title;
-
-		if (index !== null && this.productBasketNumber) {
-			this.productBasketNumber.textContent = (index + 1).toString();
+		if (options) {
+			if (typeof options === 'number') {
+				if (options !== null && this.productBasketNumber) {
+					this.productBasketNumber.textContent = (options).toString();
+				}
+			} else {
+				if (options !== null && this.buyButton) {
+					this.canBuy(options);
+				}
+			}
 		}
 
-		if (possibility !== null && this.buyButton) {
-			this.canBuy(possibility);
-		}
 		super.render(productData);
 		return this.container;
 	}

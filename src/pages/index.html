@@ -157,20 +157,12 @@
 	</div>
 </div>
 
-<template id="success">
-	<div class="order-success">
-		<h2 class="order-success__title">Заказ оформлен</h2>
-		<p class="order-success__description">Списано 0 синапсов</p>
-		<button class="button order-success__close">За новыми покупками!</button>
-	</div>
-</template>
-
 <template id="card-catalog">
 	<button class="gallery__item card">
-		<span class="card__category card__category_soft">софт-скил</span>
-		<h2 class="card__title">+1 час в сутках</h2>
-		<img alt="" class="card__image" src="<%=require('../images/Subtract.svg')%>" />
-		<span class="card__price">750 синапсов</span>
+		<span class="card__category card__category_soft"></span>
+		<h2 class="card__title"></h2>
+		<img alt="" class="card__image" src="" />
+		<span class="card__price"></span>
 	</button>
 </template>
 
@@ -182,33 +174,18 @@
 			<h2 class="card__title"></h2>
 			<p class="card__text"></p>
 			<div class="card__row">
-				<button class="button card__button">В корзину</button>
+				<button class="button card__button"></button>
 				<span class="card__price"></span>
 			</div>
 		</div>
 	</div>
 </template>
 
-<!--	<template id="card-preview">-->
-<!--		<div class="card card_full">-->
-<!--			<img class="card__image" src="<%=require('../images/Subtract.svg')%>" alt="" />-->
-<!--			<div class="card__column">-->
-<!--				<span class="card__category card__category_other">другое</span>-->
-<!--				<h2 class="card__title">Бэкенд-антистресс</h2>-->
-<!--				<p class="card__text">Если планируете решать задачи в тренажёре, берите два.</p>-->
-<!--				<div class="card__row">-->
-<!--					<button class="button card__button">В корзину</button>-->
-<!--					<span class="card__price">1000 синапсов</span>-->
-<!--				</div>-->
-<!--			</div>-->
-<!--		</div>-->
-<!--	</template>-->
-
 <template id="card-basket">
 	<li class="basket__item card card_compact">
-		<span class="basket__item-index">1</span>
-		<span class="card__title">Фреймворк куки судьбы</span>
-		<span class="card__price">2500 синапсов</span>
+		<span class="basket__item-index"></span>
+		<span class="card__title"></span>
+		<span class="card__price"></span>
 		<button aria-label="удалить" class="basket__item-delete card__button"></button>
 	</li>
 </template>
@@ -219,7 +196,7 @@
 		<ul class="basket__list"></ul>
 		<div class="modal__actions">
 			<button class="button basket__button">Оформить</button>
-			<span class="basket__price">0 синапсов</span>
+			<span class="basket__price"></span>
 		</div>
 	</div>
 </template>
@@ -264,5 +241,14 @@
 		</div>
 	</form>
 </template>
+
+<template id="success">
+	<div class="order-success">
+		<h2 class="order-success__title">Заказ оформлен</h2>
+		<p class="order-success__description">Списано 0 синапсов</p>
+		<button class="button order-success__close">За новыми покупками!</button>
+	</div>
+</template>
+
 </body>
 </html>
