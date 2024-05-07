@@ -1,24 +1,25 @@
 import './scss/styles.scss';
-import { EventEmitter } from './components/base/events';
-import { ProductsData } from './components/ProductsData';
+
 import { Api } from './components/base/api';
-import { API_URL, initialData, settings } from './utils/constants';
 import { AppApi } from './components/AppApi';
+import { API_URL, initialData, settings } from './utils/constants';
+import { EventEmitter } from './components/base/events';
+import { Page } from './components/Page';
+import { ProductsData } from './components/ProductsData';
 import { OrderData } from './components/OrderData';
 import { Product } from './components/Product';
+import { Modal } from './components/common/Modal';
+import { Basket } from './components/common/Basket';
+import { OrderForm } from './components/OrderForm';
+import { ContactsForm } from './components/ContactsForm';
+import { Success } from './components/common/Success';
+import { IOrder } from './types';
 import {
 	cloneTemplate,
 	ensureElement,
 	validateContacts,
 	validateOrder,
 } from './utils/utils';
-import { Modal } from './components/common/Modal';
-import { Page } from './components/Page';
-import { Basket } from './components/common/Basket';
-import { IOrder } from './types';
-import { Success } from './components/common/Success';
-import { OrderForm } from './components/OrderForm';
-import { ContactsForm } from './components/ContactsForm';
 
 const events = new EventEmitter();
 const api = new AppApi(new Api(API_URL, settings));
