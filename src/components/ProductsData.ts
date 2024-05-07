@@ -3,12 +3,12 @@ import { IEvents } from './base/events';
 
 export class ProductsData implements IProductsData {
 	protected events: IEvents;
+	protected _items: IProduct[];
+	protected _basket: IProduct[] = [];
 
 	constructor(events: IEvents) {
 		this.events = events;
 	}
-
-	protected _items: IProduct[];
 
 	get items() {
 		return this._items;
@@ -18,26 +18,6 @@ export class ProductsData implements IProductsData {
 		this._items = items;
 		this.events.emit('products:changed');
 	}
-
-	// protected _preview: string | null;
-	//
-	// get preview() {
-	// 	return this._preview;
-	// }
-	//
-	// set preview(productId: string | null) {
-	// 	if (!productId) {
-	// 		this._preview = null;
-	// 		return;
-	// 	}
-	// 	const selectedProduct = this.getProduct(productId);
-	// 	if (selectedProduct) {
-	// 		this._preview = productId;
-	// 		this.events.emit('product:selected');
-	// 	}
-	// }
-
-	protected _basket: IProduct[] = [];
 
 	get basket() {
 		return this._basket;
@@ -69,8 +49,8 @@ export class ProductsData implements IProductsData {
 	}
 
 	updateProduct(product: IProduct, payload: Function | null = null) {
-		const findedItem = this._items.find((item) => item.id === product.id);
-		Object.assign(findedItem, product);
+		const foundedItem = this._items.find((item) => item.id === product.id);
+		Object.assign(foundedItem, product);
 
 		if (payload) {
 			payload();
@@ -83,15 +63,10 @@ export class ProductsData implements IProductsData {
 		return this._items.find((item) => item.id === productId);
 	}
 
-	// //Подумать как сделать
-	// checkValidation(data: Record<keyof TProductModal, string>): boolean {
-	// 	return true;
-	// }
-
 	addToBasket(product: IProduct, payload: Function | null = null) {
-		const findedItem = this._items.find((item) => item.id === product.id);
+		const foundedItem = this._items.find((item) => item.id === product.id);
 
-		this._basket.push(findedItem);
+		this._basket.push(foundedItem);
 
 		if (payload) {
 			payload();
@@ -131,7 +106,6 @@ export class ProductsData implements IProductsData {
 			ret.aval = false;
 			ret.text = 'Уже в корзине';
 		}
-		// return (!this.isInBasket(productId) && this.isPossibleToBuy(productId));
 		return ret;
 	}
 }

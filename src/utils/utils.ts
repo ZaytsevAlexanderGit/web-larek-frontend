@@ -1,4 +1,4 @@
-import { contacts, order, orderData } from '../index';
+import { contacts, order, orderForSend } from '../index';
 import { formErrors } from './constants';
 
 export function pascalToKebab(value: string): string {
@@ -173,10 +173,10 @@ export function checkItemCategory(category: string): string {
 
 export function validateOrder() {
 	const errors: typeof formErrors = {};
-	if (!orderData.order.payment) {
+	if (!orderForSend.payment) {
 		errors.email = 'Необходимо выбрать способ оплаты';
 	}
-	if (!orderData.order.address) {
+	if (!orderForSend.address) {
 		errors.address = 'Необходимо указать адрес';
 	}
 	const { payment, address } = errors;
@@ -187,10 +187,10 @@ export function validateOrder() {
 
 export function validateContacts() {
 	const errors: typeof formErrors = {};
-	if (!orderData.order.email) {
+	if (!orderForSend.email) {
 		errors.email = 'Необходимо указать email';
 	}
-	if (!orderData.order.phone) {
+	if (!orderForSend.phone) {
 		errors.phone = 'Необходимо указать телефон';
 	}
 	const { email, phone } = errors;

@@ -6,13 +6,15 @@ import { API_URL, initialData, settings } from './utils/constants';
 import { EventEmitter } from './components/base/events';
 import { Page } from './components/Page';
 import { ProductsData } from './components/ProductsData';
-import { OrderData } from './components/OrderData';
-import { Product } from './components/Product';
-import { Modal } from './components/common/Modal';
-import { Basket } from './components/common/Basket';
-import { OrderForm } from './components/OrderForm';
-import { ContactsForm } from './components/ContactsForm';
-import { Success } from './components/common/Success';
+import {
+	BasketProduct,
+	CatalogProduct,
+	ModalProduct,
+} from './components/Product';
+import { Modal } from './components/Modal';
+import { Basket } from './components/Basket';
+import { ContactsForm, OrderForm } from './components/Form';
+import { Success } from './components/Success';
 import { IOrder } from './types';
 import {
 	cloneTemplate,
@@ -24,7 +26,7 @@ import {
 const events = new EventEmitter();
 const api = new AppApi(new Api(API_URL, settings));
 
-// Чтобы мониторить все события, для отладки
+// // Чтобы мониторить все события, для отладки
 events.onAll((event) => {
 	console.log(event.eventName, event.data);
 });
@@ -56,8 +58,10 @@ const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 // Модель данных товаров и корзины
 const productData = new ProductsData(events);
-// Модель данных заказа
-export const orderData = new OrderData(events);
+
+//-----------------------------------------------
+// Глобальная переменная для формирования заказа на отправку
+export let orderForSend: IOrder = initialData;
 
 //-----------------------------------------------
 // Глобальные контейнеры
@@ -71,7 +75,7 @@ const page = new Page(document.body, events);
 // Переиспользуемые части интерфейса
 
 // Карточка для показа в модальном окне
-const productModalTemp = new Product(cloneTemplate(productModalTemplate),
+const productModalTemp = new ModalProduct(cloneTemplate(productModalTemplate),
 	events);
 // Корзина
 const basket = new Basket(cloneTemplate(basketTemplate), events);
@@ -95,7 +99,8 @@ const success = new Success(cloneTemplate(successTemplate), {
 events.on('products:changed', () => {
 	const cardArray: HTMLElement[] = [];
 	productData.items.forEach((product, index) => {
-		const productTemp = new Product(cloneTemplate(productCatalogTemplate),
+		const productTemp = new CatalogProduct(
+			cloneTemplate(productCatalogTemplate),
 			events);
 		cardArray.push(
 			productTemp.render(product));
@@ -111,10 +116,10 @@ events.on('basket:changed', () => {
 
 // Выбрали товар на главной странице
 events.on('product:select', (data: { id: string }) => {
-	const productFinded = productData.getProduct(data.id);
+	const foundedProduct = productData.getProduct(data.id);
 	modal.render({
-		content: productModalTemp.render(productFinded,
-			productData.isAvailableToBuy(productFinded.id)),
+		content: productModalTemp.render(foundedProduct,
+			productData.isAvailableToBuy(foundedProduct.id)),
 	});
 });
 
@@ -129,7 +134,8 @@ events.on('basket:addProduct', (data: { id: string }) => {
 // Открытие корзины
 events.on('basket:open', () => {
 		basket.items = productData.basket.map((product, index) => {
-			const productBasketTemp = new Product(cloneTemplate(productBasketTemplate),
+			const productBasketTemp = new BasketProduct(
+				cloneTemplate(productBasketTemplate),
 				events);
 			return productBasketTemp.render(product, index + 1);
 		});
@@ -153,7 +159,7 @@ events.on(/^(order|contacts)\..*:change/,
 		field: keyof Pick<IOrder, 'payment' | 'phone' | 'address' | 'email'>,
 		value: string,
 	}) => {
-		orderData.order[ data.field ] = data.value;
+		orderForSend[ data.field ] = data.value;
 		if (data.field === 'payment' || data.field === 'address') {
 			validateOrder();
 		} else {
@@ -163,8 +169,8 @@ events.on(/^(order|contacts)\..*:change/,
 
 // Открытие формы для указания адреса и выбора типа оплаты
 events.on('order:open', () => {
-	orderData.total = productData.basketTotalPrice;
-	orderData.items = productData.basket.map(item => item.id);
+	orderForSend.total = productData.basketTotalPrice;
+	orderForSend.items = productData.basket.map(item => item.id);
 	modal.render({
 		content: order.render({
 			address: '',
@@ -189,7 +195,7 @@ events.on('order:submit', () => {
 
 // Открытие окончательной формы удачного заказа
 events.on('contacts:submit', () => {
-	api.postOrder(orderData.order)
+	api.postOrder(orderForSend)
 		.then((answer) => {
 			modal.render({
 				content: success.render(productData.basketTotalPrice),
@@ -211,9 +217,8 @@ events.on('modal:open', () => {
 // Разблокируем прокрутку страницы если открыта модалка
 events.on('modal:close', () => {
 	page.locked = false;
-	orderData.order = initialData;
+	orderForSend = initialData;
 });
-
 
 //-----------------------------------------------
 // Запуск приложения

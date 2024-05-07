@@ -6,7 +6,7 @@ export interface IProduct {
 	image: string,
 	title: string,
 	category: productCategory,
-	price: number | null,
+	price: number,
 }
 
 export interface IOrder {
@@ -25,20 +25,7 @@ export type IContactsForm = Pick<IOrder, 'email' | 'phone'>
 export interface IProductsData {
 	items: IProduct[],
 	basket: IProduct[],
-	addProduct(product: IProduct, payload: Function | null): void,
-	deleteProduct(productID: string, payload: Function | null): void,
-	updateProduct(product: IProduct, payload: Function | null): void,
-	getProduct(productId: string): IProduct,
-	// checkValidation(data: Record<keyof TProductModal, string>): boolean,
 }
-
-export interface IOrderData {
-	order: IOrder,
-}
-
-export type TProductCatalog = Pick<IProduct, 'title' | 'image' | 'category' | 'price'>
-export type TProductModal = Pick<IProduct, 'title' | 'description' | 'image' | 'category' | 'price'>
-export type TProductBasket = Pick<IProduct, 'title' | 'price'>
 
 export interface IApi {
 	baseUrl: string;
@@ -51,25 +38,9 @@ export interface IApiSuccess {
 	total: number,
 }
 
-export interface IApiError {
-	error: string,
-}
-
-enum enumProductCategory {
-	'софт-скил',
-	'хард-скил',
-	'кнопка',
-	'дополнительное',
-	'другое'
-}
-
-export type productCategory = keyof typeof enumProductCategory;
-
-// enum enumPaymentCategory {
-// 	'online',
-// 	'offline',
-// }
-//
-// export type paymentCategory = keyof typeof enumPaymentCategory extends String;
-//
-
+export type productCategory =
+	'софт-скил'
+	| 'хард-скил'
+	| 'кнопка'
+	| 'дополнительное'
+	| 'другое'

@@ -4,109 +4,63 @@ import { IEvents } from './base/events';
 import { checkItemCategory, ensureElement, formatNumber } from '../utils/utils';
 import { CDN_URL } from '../utils/constants';
 
-export class Product extends Component<IProduct> {
+abstract class Product extends Component<IProduct> {
 	protected events: IEvents;
-	protected productButton?: HTMLElement;
 	protected productTitle: HTMLElement;
-	protected productDescription?: HTMLElement;
 	protected productPrice: HTMLElement;
-	protected productCategory?: HTMLElement;
-	protected productBasketNumber?: HTMLElement;
-	protected productImage?: HTMLImageElement;
-	protected deleteButton?: HTMLButtonElement;
-	protected buyButton?: HTMLButtonElement;
 	protected productId: string;
 
-	constructor(protected container: HTMLElement, events: IEvents) {
+	protected constructor(protected container: HTMLElement, events: IEvents) {
 		super(container);
 		this.events = events;
 
-		if (container.classList.contains('gallery__item')) this.productButton =
-			container;
 		this.productTitle = ensureElement<HTMLElement>('.card__title', container);
 		this.productPrice = ensureElement<HTMLElement>('.card__price', container);
-		try {
-			this.productDescription =
-				ensureElement<HTMLElement>('.card__text', container);
-		} catch (err) {
-			// console.log(err.message);
-		}
-		try {
-			this.productCategory =
-				ensureElement<HTMLElement>('.card__category', container);
-		} catch (err) {
-			// console.log(err.message);
-		}
-		try {
-			this.productImage =
-				ensureElement<HTMLImageElement>('.card__image', container);
-		} catch (err) {
-			// console.log(err.message);
-		}
-		try {
-			this.deleteButton =
-				ensureElement<HTMLButtonElement>('.basket__item-delete', container);
-		} catch (err) {
-			// console.log(err.message);
-		}
-		try {
-			this.buyButton = ensureElement<HTMLButtonElement>('.button', container);
-		} catch (err) {
-			// console.log(err.message);
-		}
-		try {
-			this.productBasketNumber =
-				ensureElement<HTMLButtonElement>('.basket__item-index', container);
-		} catch (err) {
-			// console.log(err.message);
-		}
-
-
-		if (this.productButton)
-			this.productButton.addEventListener('click', () =>
-				this.events.emit('product:select', { id: this.productId }),
-			);
-
-		if (this.deleteButton)
-			this.deleteButton.addEventListener('click', () =>
-				this.events.emit('basket:deleteProduct', { id: this.productId }),
-			);
-
-		if (this.buyButton)
-			this.buyButton.addEventListener('click', () =>
-				this.events.emit('basket:addProduct',
-					{ id: this.productId }),
-			);
-	}
-
-	set description(description: string) {
-		if (this.productDescription)
-			this.productDescription.textContent = description;
 	}
 
 	set title(title: string) {
-		if (this.productTitle)
-			this.productTitle.textContent = title;
+		this.productTitle.textContent = title;
 	}
 
 	set price(price: number | null) {
-		if (this.productPrice) {
-			if (price !== null)
-				if (price.toString().length > 4) this.productPrice.textContent =
-					`${formatNumber(price)} синапсов`;
-				else this.productPrice.textContent = `${price} синапсов`;
-			else this.productPrice.textContent = `Бесценно`;
-		}
+		if (price !== null)
+			if (price.toString().length > 4) this.productPrice.textContent =
+				`${formatNumber(price)} синапсов`;
+			else this.productPrice.textContent = `${price} синапсов`;
+		else this.productPrice.textContent = `Бесценно`;
+
+	}
+
+	set id(id: string) {
+		this.productId = id;
+	}
+}
+
+export class CatalogProduct extends Product {
+	protected productButton: HTMLElement;
+	protected productCategory: HTMLElement;
+	protected productImage: HTMLImageElement;
+
+	constructor(protected container: HTMLElement, events: IEvents) {
+		super(container, events);
+		this.events = events;
+
+		this.productButton = container;
+		this.productCategory =
+			ensureElement<HTMLElement>('.card__category', container);
+		this.productImage =
+			ensureElement<HTMLImageElement>('.card__image', container);
+
+		this.productButton.addEventListener('click', () =>
+			this.events.emit('product:select', { id: this.productId }));
 	}
 
 	set category(category: productCategory) {
-		if (this.productCategory) {
-			this.productCategory.textContent = category;
-			this.productCategory.className = '';
-			this.productCategory.classList.add('card__category');
-			this.productCategory.classList.add(
-				`card__category${checkItemCategory(category)}`);
-		}
+		this.productCategory.textContent = category;
+		this.productCategory.className = '';
+		this.productCategory.classList.add('card__category');
+		this.productCategory.classList.add(
+			`card__category${checkItemCategory(category)}`);
 	}
 
 	set image(image: string) {
@@ -115,8 +69,54 @@ export class Product extends Component<IProduct> {
 		}
 	}
 
-	set id(id: string) {
-		this.productId = id;
+	render(productData: Partial<IProduct>) {
+		if (!productData) return this.container;
+		this.productImage.alt = productData.title;
+		super.render(productData);
+		return this.container;
+	}
+}
+
+export class ModalProduct extends Product {
+	protected productCategory: HTMLElement;
+	protected productImage: HTMLImageElement;
+	protected productDescription: HTMLElement;
+	protected buyButton: HTMLButtonElement;
+
+	constructor(protected container: HTMLElement, events: IEvents) {
+		super(container, events);
+		this.events = events;
+
+		this.productCategory =
+			ensureElement<HTMLElement>('.card__category', container);
+		this.productImage =
+			ensureElement<HTMLImageElement>('.card__image', container);
+		this.productDescription =
+			ensureElement<HTMLElement>('.card__text', container);
+		this.buyButton = ensureElement<HTMLButtonElement>('.button', container);
+
+		this.buyButton.addEventListener('click', () =>
+			this.events.emit('basket:addProduct',
+				{ id: this.productId }),
+		);
+	}
+
+	set category(category: productCategory) {
+		this.productCategory.textContent = category;
+		this.productCategory.className = '';
+		this.productCategory.classList.add('card__category');
+		this.productCategory.classList.add(
+			`card__category${checkItemCategory(category)}`);
+	}
+
+	set image(image: string) {
+		if (this.productImage) {
+			this.productImage.src = CDN_URL + image;
+		}
+	}
+
+	set description(description: string) {
+		this.productDescription.textContent = description;
 	}
 
 	canBuy(
@@ -128,23 +128,51 @@ export class Product extends Component<IProduct> {
 
 	render(data?: Partial<IProduct>): HTMLElement;
 	render(productData: Partial<IProduct>,
-				 options: { aval: boolean, text: string } | number): HTMLElement;
+				 options: { aval: boolean, text: string }): HTMLElement;
 
 	render(productData: Partial<IProduct> | undefined,
-				 options?: { aval: boolean, text: string } | number) {
+				 options?: { aval: boolean, text: string }) {
 		if (!productData) return this.container;
-		if (this.productImage)
-			this.productImage.alt = productData.title;
+		this.productImage.alt = productData.title;
+		if (options) {
+			if (options !== null && this.buyButton) {
+				this.canBuy(options);
+			}
+		}
+		super.render(productData);
+		return this.container;
+	}
+}
+
+export class BasketProduct extends Product {
+	protected productBasketNumber: HTMLElement;
+	protected deleteButton: HTMLButtonElement;
+
+	constructor(protected container: HTMLElement, events: IEvents) {
+		super(container, events);
+		this.events = events;
+
+		this.deleteButton =
+			ensureElement<HTMLButtonElement>('.basket__item-delete', container);
+		this.productBasketNumber =
+			ensureElement<HTMLButtonElement>('.basket__item-index', container);
+
+		this.deleteButton.addEventListener('click', () =>
+			this.events.emit('basket:deleteProduct', { id: this.productId }),
+		);
+	}
+
+	render(data?: Partial<IProduct>): HTMLElement;
+	render(productData: Partial<IProduct>,
+				 options: number): HTMLElement;
+
+	render(productData: Partial<IProduct> | undefined,
+				 options?: number) {
+		if (!productData) return this.container;
 
 		if (options) {
-			if (typeof options === 'number') {
-				if (options !== null && this.productBasketNumber) {
-					this.productBasketNumber.textContent = (options).toString();
-				}
-			} else {
-				if (options !== null && this.buyButton) {
-					this.canBuy(options);
-				}
+			if (options !== null && this.productBasketNumber) {
+				this.productBasketNumber.textContent = (options).toString();
 			}
 		}
 
