@@ -2,11 +2,11 @@ import { ApiPostMethods } from '../components/base/api';
 
 export interface IProduct {
 	id: string,
+	title: string,
+	price: number,
 	description: string,
 	image: string,
-	title: string,
 	category: productCategory,
-	price: number,
 }
 
 export interface IOrder {
@@ -16,6 +16,10 @@ export interface IOrder {
 	address: string,
 	total: number,
 	items: string[]
+}
+
+export interface IOrderData {
+	order: IOrder,
 }
 
 export type IOrderForm = Pick<IOrder, 'payment' | 'address'>

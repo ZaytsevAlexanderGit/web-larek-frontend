@@ -38,7 +38,7 @@ export abstract class Form<T> extends Component<IFormState> {
 	}
 
 	set valid(value: boolean) {
-		this._submit.disabled = !value;
+		this.setDisabled(this._submit, !value);
 	}
 
 	render(state: Partial<T> & IFormState) {
@@ -80,9 +80,9 @@ export class OrderForm extends Form<IOrderForm> {
 	}
 
 	set payment(value: string) {
-		this._onlineButton.classList.toggle('button_alt-active',
+		this.toggleClass(this._onlineButton, 'button_alt-active',
 			value === 'online');
-		this._offlineButton.classList.toggle('button_alt-active',
+		this.toggleClass(this._offlineButton, 'button_alt-active',
 			value === 'offline');
 	}
 

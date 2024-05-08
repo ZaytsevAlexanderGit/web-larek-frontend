@@ -1,5 +1,6 @@
-import { contacts, order, orderForSend } from '../index';
 import { formErrors } from './constants';
+import { IContactsForm, IOrderForm } from '../types';
+import { ContactsForm, OrderForm } from '../components/Form';
 
 export function pascalToKebab(value: string): string {
 	return value.replace(/([a-z0–9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -171,29 +172,31 @@ export function checkItemCategory(category: string): string {
 	return additionalClass;
 }
 
-export function validateOrder() {
+export function validateOrder(form: OrderForm, data: IOrderForm) {
 	const errors: typeof formErrors = {};
-	if (!orderForSend.payment) {
+	if (!data.payment) {
 		errors.email = 'Необходимо выбрать способ оплаты';
 	}
-	if (!orderForSend.address) {
+	if (!data.address) {
+		console.log(data.address);
 		errors.address = 'Необходимо указать адрес';
 	}
 	const { payment, address } = errors;
-	order.valid = !payment && !address;
-	order.errors =
+	form.valid = !payment && !address;
+	form.errors =
 		Object.values({ address, payment }).filter(i => !!i).join('; ');
 }
 
-export function validateContacts() {
+export function validateContacts(form: ContactsForm, data: IContactsForm) {
 	const errors: typeof formErrors = {};
-	if (!orderForSend.email) {
+	if (!data.email) {
 		errors.email = 'Необходимо указать email';
 	}
-	if (!orderForSend.phone) {
+	if (!data.phone) {
 		errors.phone = 'Необходимо указать телефон';
 	}
 	const { email, phone } = errors;
-	contacts.valid = !email && !phone;
-	contacts.errors = Object.values({ phone, email }).filter(i => !!i).join('; ');
+	form.valid = !email && !phone;
+	form.errors =
+		Object.values({ phone, email }).filter(i => !!i).join('; ');
 }

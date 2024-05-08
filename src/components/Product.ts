@@ -19,15 +19,19 @@ abstract class Product extends Component<IProduct> {
 	}
 
 	set title(title: string) {
-		this.productTitle.textContent = title;
+		this.setText(this.productTitle, title);
+	}
+
+	get title(): string {
+		return this.productTitle.textContent;
 	}
 
 	set price(price: number | null) {
 		if (price !== null)
-			if (price.toString().length > 4) this.productPrice.textContent =
-				`${formatNumber(price)} синапсов`;
-			else this.productPrice.textContent = `${price} синапсов`;
-		else this.productPrice.textContent = `Бесценно`;
+			if (price.toString().length > 4) this.setText(this.productPrice,
+				`${formatNumber(price)} синапсов`);
+			else this.setText(this.productPrice, `${price} синапсов`);
+		else this.setText(this.productPrice, `Бесценно`);
 
 	}
 
@@ -36,143 +40,93 @@ abstract class Product extends Component<IProduct> {
 	}
 }
 
-export class CatalogProduct extends Product {
+
+export class RenderProduct extends Product {
 	protected productButton: HTMLElement;
-	protected productCategory: HTMLElement;
-	protected productImage: HTMLImageElement;
-
-	constructor(protected container: HTMLElement, events: IEvents) {
-		super(container, events);
-		this.events = events;
-
-		this.productButton = container;
-		this.productCategory =
-			ensureElement<HTMLElement>('.card__category', container);
-		this.productImage =
-			ensureElement<HTMLImageElement>('.card__image', container);
-
-		this.productButton.addEventListener('click', () =>
-			this.events.emit('product:select', { id: this.productId }));
-	}
-
-	set category(category: productCategory) {
-		this.productCategory.textContent = category;
-		this.productCategory.className = '';
-		this.productCategory.classList.add('card__category');
-		this.productCategory.classList.add(
-			`card__category${checkItemCategory(category)}`);
-	}
-
-	set image(image: string) {
-		if (this.productImage) {
-			this.productImage.src = CDN_URL + image;
-		}
-	}
-
-	render(productData: Partial<IProduct>) {
-		if (!productData) return this.container;
-		this.productImage.alt = productData.title;
-		super.render(productData);
-		return this.container;
-	}
-}
-
-export class ModalProduct extends Product {
 	protected productCategory: HTMLElement;
 	protected productImage: HTMLImageElement;
 	protected productDescription: HTMLElement;
 	protected buyButton: HTMLButtonElement;
+	protected productBasketNumber: HTMLElement;
+	protected deleteButton: HTMLButtonElement;
 
-	constructor(protected container: HTMLElement, events: IEvents) {
+	constructor(protected container: HTMLElement, events: IEvents, type: string) {
 		super(container, events);
 		this.events = events;
 
-		this.productCategory =
-			ensureElement<HTMLElement>('.card__category', container);
-		this.productImage =
-			ensureElement<HTMLImageElement>('.card__image', container);
-		this.productDescription =
-			ensureElement<HTMLElement>('.card__text', container);
-		this.buyButton = ensureElement<HTMLButtonElement>('.button', container);
+		// Шаблон товара каталога главной страницы
+		if (type === 'catalog') {
+			this.productButton = container;
+			this.productCategory =
+				ensureElement<HTMLElement>('.card__category', container);
+			this.productImage =
+				ensureElement<HTMLImageElement>('.card__image', container);
 
-		this.buyButton.addEventListener('click', () =>
-			this.events.emit('basket:addProduct',
-				{ id: this.productId }),
-		);
+			this.productButton.addEventListener('click', () =>
+				this.events.emit('product:select', { id: this.productId }));
+		}
+		// Шаблон товара модальной страницы
+		else if (type === 'modal') {
+			this.productCategory =
+				ensureElement<HTMLElement>('.card__category', container);
+			this.productImage =
+				ensureElement<HTMLImageElement>('.card__image', container);
+			this.productDescription =
+				ensureElement<HTMLElement>('.card__text', container);
+			this.buyButton = ensureElement<HTMLButtonElement>('.button', container);
+
+			this.buyButton.addEventListener('click', () =>
+				this.events.emit('basket:addProduct',
+					{ id: this.productId }),
+			);
+		}
+		// Шаблон товара корзины страницы
+		else if (type === 'basket') {
+			this.deleteButton =
+				ensureElement<HTMLButtonElement>('.basket__item-delete', container);
+			this.productBasketNumber =
+				ensureElement<HTMLButtonElement>('.basket__item-index', container);
+
+			this.deleteButton.addEventListener('click', () =>
+				this.events.emit('basket:deleteProduct', { id: this.productId }),
+			);
+		}
+
 	}
 
 	set category(category: productCategory) {
-		this.productCategory.textContent = category;
-		this.productCategory.className = '';
-		this.productCategory.classList.add('card__category');
-		this.productCategory.classList.add(
+		this.setText(this.productCategory, category);
+		this.setClasses(this.productCategory, 'card__category');
+		this.addClass(this.productCategory,
 			`card__category${checkItemCategory(category)}`);
 	}
 
 	set image(image: string) {
-		if (this.productImage) {
-			this.productImage.src = CDN_URL + image;
-		}
+		this.setImage(this.productImage, CDN_URL + image, this.title);
 	}
 
 	set description(description: string) {
-		this.productDescription.textContent = description;
+		this.setText(this.productDescription, description);
 	}
 
 	canBuy(
 		possibility: { aval: boolean, text: string },
 	) {
-		this.buyButton.disabled = !possibility.aval;
-		this.buyButton.textContent = possibility.text;
+		this.setDisabled(this.buyButton, !possibility.aval);
+		this.setText(this.buyButton, possibility.text);
 	}
 
-	render(data?: Partial<IProduct>): HTMLElement;
-	render(productData: Partial<IProduct>,
-				 options: { aval: boolean, text: string }): HTMLElement;
-
 	render(productData: Partial<IProduct> | undefined,
-				 options?: { aval: boolean, text: string }) {
+				 options?: { aval: boolean, text: string } | number) {
 		if (!productData) return this.container;
-		this.productImage.alt = productData.title;
-		if (options) {
+
+		if (typeof options === 'number') {
+			if (options !== null && this.productBasketNumber) {
+				this.setText(this.productBasketNumber, options.toString());
+			}
+		} else {
 			if (options !== null && this.buyButton) {
 				this.canBuy(options);
-			}
-		}
-		super.render(productData);
-		return this.container;
-	}
-}
-
-export class BasketProduct extends Product {
-	protected productBasketNumber: HTMLElement;
-	protected deleteButton: HTMLButtonElement;
-
-	constructor(protected container: HTMLElement, events: IEvents) {
-		super(container, events);
-		this.events = events;
-
-		this.deleteButton =
-			ensureElement<HTMLButtonElement>('.basket__item-delete', container);
-		this.productBasketNumber =
-			ensureElement<HTMLButtonElement>('.basket__item-index', container);
-
-		this.deleteButton.addEventListener('click', () =>
-			this.events.emit('basket:deleteProduct', { id: this.productId }),
-		);
-	}
-
-	render(data?: Partial<IProduct>): HTMLElement;
-	render(productData: Partial<IProduct>,
-				 options: number): HTMLElement;
-
-	render(productData: Partial<IProduct> | undefined,
-				 options?: number) {
-		if (!productData) return this.container;
-
-		if (options) {
-			if (options !== null && this.productBasketNumber) {
-				this.productBasketNumber.textContent = (options).toString();
 			}
 		}
 

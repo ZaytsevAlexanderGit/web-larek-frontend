@@ -27,14 +27,7 @@ export class Success extends Component<ISuccess> {
 		}
 	}
 
-	set total(total: string) {
-		this._total.textContent = total;
-	}
-
-	render(data?: Partial<ISuccess> | number): HTMLElement;
-	render(total: number) {
-		if (total) this.total = `Списано ${formatNumber(total)} синапсов`;
-		super.render();
-		return this.container;
+	set total(total: number) {
+		this.setText(this._total, `Списано ${formatNumber(total)} синапсов`);
 	}
 }

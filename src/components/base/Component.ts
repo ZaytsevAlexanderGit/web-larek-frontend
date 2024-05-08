@@ -33,6 +33,24 @@ export abstract class Component<T> {
 		}
 	}
 
+	protected setClasses(element: HTMLElement, value: unknown) {
+		if (element) {
+			element.className = String(value);
+		}
+	}
+
+	protected addClass(element: HTMLElement, value: unknown) {
+		if (element) {
+			element.classList.add(String(value));
+		}
+	}
+
+	protected removeClass(element: HTMLElement, value: unknown) {
+		if (element) {
+			element.classList.remove(String(value));
+		}
+	}
+
 	// Скрыть
 	protected setHidden(element: HTMLElement) {
 		element.style.display = 'none';
