@@ -12,12 +12,7 @@ import { Basket } from './components/Basket';
 import { ContactsForm, OrderForm } from './components/Form';
 import { Success } from './components/Success';
 import { IOrder } from './types';
-import {
-	cloneTemplate,
-	ensureElement,
-	validateContacts,
-	validateOrder,
-} from './utils/utils';
+import { cloneTemplate, ensureElement, validateForm } from './utils/utils';
 import { OrderData } from './components/OrderData';
 
 const events = new EventEmitter();
@@ -157,17 +152,9 @@ events.on(/^(order|contacts)\..*:change/,
 	}) => {
 		orderData.order[ data.field ] = data.value;
 		if (data.field === 'payment' || data.field === 'address') {
-			validateOrder(orderForm,
-				{
-					payment: orderData.order.payment,
-					address: orderData.order.address,
-				});
-		} else {
-			validateContacts(contactsForm, {
-					phone: orderData.order.phone,
-					email: orderData.order.email,
-				},
-			);
+			validateForm(orderForm, orderData.order, 'order');
+		} else if (data.field === 'email' || data.field === 'phone') {
+			validateForm(contactsForm, orderData.order, 'contacts');
 		}
 	});
 

@@ -1,5 +1,5 @@
 import { formErrors } from './constants';
-import { IContactsForm, IOrderForm } from '../types';
+import { IOrder } from '../types';
 import { ContactsForm, OrderForm } from '../components/Form';
 
 export function pascalToKebab(value: string): string {
@@ -172,31 +172,36 @@ export function checkItemCategory(category: string): string {
 	return additionalClass;
 }
 
-export function validateOrder(form: OrderForm, data: IOrderForm) {
+export function validateForm(form: OrderForm | ContactsForm,
+														 data: Partial<IOrder>, type: string) {
 	const errors: typeof formErrors = {};
-	if (!data.payment) {
-		errors.email = 'Необходимо выбрать способ оплаты';
+	switch (type) {
+		case 'order' : {
+			if (!data.payment) {
+				errors.email = 'Необходимо выбрать способ оплаты';
+			}
+			if (!data.address) {
+				errors.address = 'Необходимо указать адрес';
+			}
+			const { payment, address } = errors;
+			form.valid = !payment && !address;
+			form.errors =
+				Object.values({ address, payment }).filter(i => !!i).join('; ');
+			break;
+		}
+		case 'contacts': {
+			if (!data.email) {
+				errors.email = 'Необходимо указать email';
+			}
+			if (!data.phone) {
+				errors.phone = 'Необходимо указать телефон';
+			}
+			const { email, phone } = errors;
+			form.valid = !email && !phone;
+			form.errors =
+				Object.values({ phone, email }).filter(i => !!i).join('; ');
+			break;
+		}
 	}
-	if (!data.address) {
-		console.log(data.address);
-		errors.address = 'Необходимо указать адрес';
-	}
-	const { payment, address } = errors;
-	form.valid = !payment && !address;
-	form.errors =
-		Object.values({ address, payment }).filter(i => !!i).join('; ');
 }
 
-export function validateContacts(form: ContactsForm, data: IContactsForm) {
-	const errors: typeof formErrors = {};
-	if (!data.email) {
-		errors.email = 'Необходимо указать email';
-	}
-	if (!data.phone) {
-		errors.phone = 'Необходимо указать телефон';
-	}
-	const { email, phone } = errors;
-	form.valid = !email && !phone;
-	form.errors =
-		Object.values({ phone, email }).filter(i => !!i).join('; ');
-}

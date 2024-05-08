@@ -53,43 +53,47 @@ export class RenderProduct extends Product {
 		this.events = events;
 
 		// Шаблон товара каталога главной страницы
-		if (type === 'catalog') {
-			this.productButton = container;
-			this.productCategory =
-				ensureElement<HTMLElement>('.card__category', container);
-			this.productImage =
-				ensureElement<HTMLImageElement>('.card__image', container);
+		switch (type) {
+			case 'catalog': {
+				this.productButton = container;
+				this.productCategory =
+					ensureElement<HTMLElement>('.card__category', container);
+				this.productImage =
+					ensureElement<HTMLImageElement>('.card__image', container);
 
-			this.productButton.addEventListener('click', () =>
-				this.events.emit('product:select', { id: this.productId }));
+				this.productButton.addEventListener('click', () =>
+					this.events.emit('product:select', { id: this.productId }));
+				break;
+			}
+			// Шаблон товара модальной страницы
+			case 'modal': {
+				this.productCategory =
+					ensureElement<HTMLElement>('.card__category', container);
+				this.productImage =
+					ensureElement<HTMLImageElement>('.card__image', container);
+				this.productDescription =
+					ensureElement<HTMLElement>('.card__text', container);
+				this.buyButton = ensureElement<HTMLButtonElement>('.button', container);
+
+				this.buyButton.addEventListener('click', () =>
+					this.events.emit('basket:addProduct',
+						{ id: this.productId }),
+				);
+				break;
+			}
+			// Шаблон товара корзины страницы
+			case 'basket': {
+				this.deleteButton =
+					ensureElement<HTMLButtonElement>('.basket__item-delete', container);
+				this.productBasketNumber =
+					ensureElement<HTMLButtonElement>('.basket__item-index', container);
+
+				this.deleteButton.addEventListener('click', () =>
+					this.events.emit('basket:deleteProduct', { id: this.productId }),
+				);
+				break;
+			}
 		}
-		// Шаблон товара модальной страницы
-		else if (type === 'modal') {
-			this.productCategory =
-				ensureElement<HTMLElement>('.card__category', container);
-			this.productImage =
-				ensureElement<HTMLImageElement>('.card__image', container);
-			this.productDescription =
-				ensureElement<HTMLElement>('.card__text', container);
-			this.buyButton = ensureElement<HTMLButtonElement>('.button', container);
-
-			this.buyButton.addEventListener('click', () =>
-				this.events.emit('basket:addProduct',
-					{ id: this.productId }),
-			);
-		}
-		// Шаблон товара корзины страницы
-		else if (type === 'basket') {
-			this.deleteButton =
-				ensureElement<HTMLButtonElement>('.basket__item-delete', container);
-			this.productBasketNumber =
-				ensureElement<HTMLButtonElement>('.basket__item-index', container);
-
-			this.deleteButton.addEventListener('click', () =>
-				this.events.emit('basket:deleteProduct', { id: this.productId }),
-			);
-		}
-
 	}
 
 	set category(category: productCategory) {
