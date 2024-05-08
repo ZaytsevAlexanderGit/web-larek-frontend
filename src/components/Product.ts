@@ -32,14 +32,12 @@ abstract class Product extends Component<IProduct> {
 				`${formatNumber(price)} синапсов`);
 			else this.setText(this.productPrice, `${price} синапсов`);
 		else this.setText(this.productPrice, `Бесценно`);
-
 	}
 
 	set id(id: string) {
 		this.productId = id;
 	}
 }
-
 
 export class RenderProduct extends Product {
 	protected productButton: HTMLElement;
