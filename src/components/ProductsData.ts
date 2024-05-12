@@ -75,6 +75,21 @@ export class ProductsData implements IProductsData {
 		}
 	}
 
+	toggleToBasket(product: IProduct, payload: Function | null = null) {
+		const foundedItem = this._items.find((item) => item.id === product.id);
+
+		if (!this._basket.some((item) => item.id === foundedItem.id)) {
+			this._basket.push(foundedItem);
+		} else {
+			this._basket = this._basket.filter(item => item.id !== foundedItem.id);
+		}
+		if (payload) {
+			payload();
+		} else {
+			this.events.emit('basket:changed');
+		}
+	}
+
 	removeFromBasket(productID: string, payload: Function | null = null) {
 		this._basket = this._basket.filter(item => item.id !== productID);
 
@@ -104,7 +119,8 @@ export class ProductsData implements IProductsData {
 		}
 		if (this.isInBasket(productId)) {
 			ret.aval = false;
-			ret.text = 'Уже в корзине';
+			// ret.text = 'Уже в корзине';
+			ret.text = 'Удалить из корзины';
 		}
 		return ret;
 	}

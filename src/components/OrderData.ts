@@ -18,14 +18,6 @@ export class OrderData implements IOrderData {
 		this._order = order;
 	}
 
-	set total(total: number) {
-		this._order.total = total;
-	}
-
-	set items(items: string[]) {
-		this._order.items = items;
-	}
-
 	set email(email: string) {
 		this._order.email = email;
 	}

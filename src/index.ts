@@ -67,7 +67,7 @@ const page = new Page(document.body, events);
 
 // Карточка для показа в модальном окне
 const productModalTemp = new RenderProduct(cloneTemplate(productModalTemplate),
-	events, 'modal');
+	events);
 // Корзина
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 // Форма с оплатой и адресом
@@ -91,9 +91,15 @@ events.on('products:changed', () => {
 	productData.items.forEach((product, index) => {
 		const productTemp = new RenderProduct(
 			cloneTemplate(productCatalogTemplate),
-			events, 'catalog');
+			events);
 		cardArray.push(
-			productTemp.render({ title: product.title, ...product }));
+			productTemp.render({
+				id: product.id,
+				title: product.title,
+				image: product.image,
+				category: product.category,
+				price: product.price,
+			}));
 	});
 	page.catalog = cardArray;
 });
@@ -108,8 +114,14 @@ events.on('basket:changed', () => {
 events.on('product:select', (data: { id: string }) => {
 	const foundedProduct = productData.getProduct(data.id);
 	modal.render({
-		content: productModalTemp.render(
-			{ title: foundedProduct.title, ...foundedProduct },
+		content: productModalTemp.render({
+				id: foundedProduct.id,
+				title: foundedProduct.title,
+				image: foundedProduct.image,
+				category: foundedProduct.category,
+				price: foundedProduct.price,
+				description: foundedProduct.description,
+			},
 			productData.isAvailableToBuy(foundedProduct.id)),
 	});
 });
@@ -121,14 +133,26 @@ events.on('basket:addProduct', (data: { id: string }) => {
 	page.counter = productData.basket.length;
 });
 
+// Добавление товара в корзину
+events.on('basket:toggleProduct', (data: { id: string }) => {
+	productData.toggleToBasket(productData.getProduct(data.id));
+	modal.close();
+	page.counter = productData.basket.length;
+});
+
 
 // Открытие корзины
 events.on('basket:open', () => {
 		const items = productData.basket.map((product, index) => {
 			const productBasketTemp = new RenderProduct(
 				cloneTemplate(productBasketTemplate),
-				events, 'basket');
-			return productBasketTemp.render(product, index + 1);
+				events);
+			return productBasketTemp.render(
+				{
+					id: product.id,
+					title: product.title,
+					price: product.price,
+				}, index + 1);
 		});
 		const total = productData.basketTotalPrice;
 		modal.render({
@@ -160,8 +184,6 @@ events.on(/^(order|contacts)\..*:change/,
 
 // Открытие формы для указания адреса и выбора типа оплаты
 events.on('order:open', () => {
-	orderData.order.total = productData.basketTotalPrice;
-	orderData.order.items = productData.basket.map(item => item.id);
 	modal.render({
 		content: orderForm.render({
 			address: '',
@@ -186,7 +208,12 @@ events.on('order:submit', () => {
 
 // Открытие окончательной формы удачного заказа
 events.on('contacts:submit', () => {
-	api.postOrder(orderData.order)
+	const dataForSend = {
+		total: productData.basketTotalPrice,
+		items: productData.basket.map(item => item.id),
+		...orderData.order,
+	};
+	api.postOrder(dataForSend)
 		.then((answer) => {
 			modal.render({
 				content: success.render({ total: productData.basketTotalPrice }),

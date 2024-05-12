@@ -10,8 +10,6 @@ export const initialData: IOrder = {
 	'email': '',
 	'phone': '',
 	'address': '',
-	'total': 0,
-	'items': [],
 };
 
 export const formErrors: FormErrors = {};
