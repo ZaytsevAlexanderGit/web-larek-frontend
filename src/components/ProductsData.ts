@@ -4,7 +4,6 @@ import { IEvents } from './base/events';
 export class ProductsData implements IProductsData {
 	protected events: IEvents;
 	protected _items: IProduct[];
-	protected _basket: IProduct[] = [];
 
 	constructor(events: IEvents) {
 		this.events = events;
@@ -15,22 +14,19 @@ export class ProductsData implements IProductsData {
 	}
 
 	set items(items: IProduct[]) {
-		this._items = items;
+		this._items = [];
+		items.forEach((item) =>
+			this._items.push({ indexInBasket: 0, ...item }),
+		);
 		this.events.emit('products:changed');
 	}
 
-	get basket() {
-		return this._basket;
-	}
-
-	set basket(items: IProduct[]) {
-		this._basket = items;
-		this.events.emit('basket:changed');
-	}
-
 	get basketTotalPrice(): number {
-		return this.basket.reduce(
-			(accum, currentValue) => accum + currentValue.price, 0);
+		return this.items.reduce(
+			(accum, currentValue) => {
+				if (currentValue.indexInBasket > 0) return accum + currentValue.price;
+				return accum;
+			}, 0);
 	}
 
 	addProduct(item: IProduct) {
@@ -65,8 +61,9 @@ export class ProductsData implements IProductsData {
 
 	addToBasket(product: IProduct, payload: Function | null = null) {
 		const foundedItem = this._items.find((item) => item.id === product.id);
-
-		this._basket.push(foundedItem);
+		const maxIndex = (this._items.filter(
+			item => item.indexInBasket !== 0)).length;
+		foundedItem.indexInBasket = maxIndex + 1;
 
 		if (payload) {
 			payload();
@@ -75,23 +72,29 @@ export class ProductsData implements IProductsData {
 		}
 	}
 
-	toggleToBasket(product: IProduct, payload: Function | null = null) {
-		const foundedItem = this._items.find((item) => item.id === product.id);
+	toggleToBasket(productID: string, payload: Function | null = null) {
+		const foundedItem = this._items.find((item) => item.id === productID);
+		const maxIndex = (this._items.filter(
+			item => item.indexInBasket !== 0)).length;
 
-		if (!this._basket.some((item) => item.id === foundedItem.id)) {
-			this._basket.push(foundedItem);
+		if (foundedItem.indexInBasket === 0) {
+			foundedItem.indexInBasket = maxIndex + 1;
 		} else {
-			this._basket = this._basket.filter(item => item.id !== foundedItem.id);
+			this.updateIndexes(foundedItem.indexInBasket);
+			foundedItem.indexInBasket = 0;
 		}
 		if (payload) {
 			payload();
 		} else {
-			this.events.emit('basket:changed');
+			this.events.emit('basket:open');
 		}
 	}
+
 
 	removeFromBasket(productID: string, payload: Function | null = null) {
-		this._basket = this._basket.filter(item => item.id !== productID);
+		const foundedItem = this._items.find((item) => item.id === productID);
+		this.updateIndexes(foundedItem.indexInBasket);
+		foundedItem.indexInBasket = 0;
 
 		if (payload) {
 			payload();
@@ -101,27 +104,25 @@ export class ProductsData implements IProductsData {
 	}
 
 	isInBasket(productId: string): boolean {
-		if (this._basket.find((item) => item.id === productId)) return true;
-		return false;
+		return ((this._items.filter((item) => item.indexInBasket > 0)).some(
+			(item) => item.id === productId));
 	}
 
 	isPossibleToBuy(productId: string): boolean {
-		if (this._items.find((item) => item.id === productId).price !==
-			null) return true;
-		return false;
+		return (this._items.find((item) => item.id === productId).price !==
+			null);
 	}
 
-	isAvailableToBuy(productId: string): { aval: boolean, text: string } {
-		const ret = { aval: true, text: 'В корзину' };
-		if (!this.isPossibleToBuy(productId)) {
-			ret.aval = false;
-			ret.text = 'Невозможно купить';
-		}
-		if (this.isInBasket(productId)) {
-			ret.aval = false;
-			// ret.text = 'Уже в корзине';
-			ret.text = 'Удалить из корзины';
-		}
-		return ret;
+	isAvailableToBuy(productId: string): string {
+		let options = 'В корзину';
+		if (!this.isPossibleToBuy(productId)) options = 'Невозможно купить';
+		if (this.isInBasket(productId)) options = 'Удалить из корзины';
+		return options;
+	}
+
+	updateIndexes(index: number) {
+		this._items.forEach((item) => {
+			if (item.indexInBasket >= index) item.indexInBasket--;
+		});
 	}
 }

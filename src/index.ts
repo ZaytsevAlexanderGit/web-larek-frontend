@@ -106,7 +106,8 @@ events.on('products:changed', () => {
 
 // Поменялась корзина
 events.on('basket:changed', () => {
-	page.counter = productData.basket.length;
+	page.counter =
+		productData.items.filter((item) => item.indexInBasket > 0).length;
 });
 
 
@@ -130,20 +131,26 @@ events.on('product:select', (data: { id: string }) => {
 events.on('basket:addProduct', (data: { id: string }) => {
 	productData.addToBasket(productData.getProduct(data.id));
 	modal.close();
-	page.counter = productData.basket.length;
+	page.counter =
+		productData.items.filter((item) => item.indexInBasket > 0).length;
 });
 
 // Добавление товара в корзину
 events.on('basket:toggleProduct', (data: { id: string }) => {
-	productData.toggleToBasket(productData.getProduct(data.id));
+	productData.toggleToBasket(data.id);
 	modal.close();
-	page.counter = productData.basket.length;
+	page.counter =
+		productData.items.filter((item) => item.indexInBasket > 0).length;
 });
 
 
 // Открытие корзины
 events.on('basket:open', () => {
-		const items = productData.basket.map((product, index) => {
+		const basketItems = productData.items.filter(
+			(item) => item.indexInBasket > 0).sort(function(a, b) {
+			return a.indexInBasket - b.indexInBasket;
+		});
+		const items = basketItems.map((product) => {
 			const productBasketTemp = new RenderProduct(
 				cloneTemplate(productBasketTemplate),
 				events);
@@ -152,7 +159,7 @@ events.on('basket:open', () => {
 					id: product.id,
 					title: product.title,
 					price: product.price,
-				}, index + 1);
+				}, product.indexInBasket);
 		});
 		const total = productData.basketTotalPrice;
 		modal.render({
@@ -164,7 +171,8 @@ events.on('basket:open', () => {
 // Удаление товара из корзины
 events.on('basket:deleteProduct', (data: { id: string }) => {
 	productData.removeFromBasket(data.id);
-	page.counter = productData.basket.length;
+	page.counter =
+		productData.items.filter((item) => item.indexInBasket > 0).length;
 	events.emit('basket:open');
 });
 
@@ -210,7 +218,8 @@ events.on('order:submit', () => {
 events.on('contacts:submit', () => {
 	const dataForSend = {
 		total: productData.basketTotalPrice,
-		items: productData.basket.map(item => item.id),
+		items: (productData.items.filter((item) => item.indexInBasket > 0)).map(
+			item => item.id),
 		...orderData.order,
 	};
 	api.postOrder(dataForSend)
@@ -218,7 +227,9 @@ events.on('contacts:submit', () => {
 			modal.render({
 				content: success.render({ total: productData.basketTotalPrice }),
 			});
-			productData.basket = [];
+			productData.items.map((item) => item.indexInBasket = 0);
+			page.counter =
+				productData.items.filter((item) => item.indexInBasket > 0).length;
 		})
 		.catch((err) => {
 			alert(err);

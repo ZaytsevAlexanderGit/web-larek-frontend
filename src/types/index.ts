@@ -7,6 +7,7 @@ export interface IProduct {
 	description: string,
 	image: string,
 	category: productCategory,
+	indexInBasket: number,
 }
 
 export interface IOrder {
@@ -14,8 +15,6 @@ export interface IOrder {
 	email: string,
 	phone: string,
 	address: string,
-	// total: number,
-	// items: string[]
 }
 
 export interface IOrderData {
@@ -28,7 +27,6 @@ export type IContactsForm = Pick<IOrder, 'email' | 'phone'>
 
 export interface IProductsData {
 	items: IProduct[],
-	basket: IProduct[],
 }
 
 export interface IApi {

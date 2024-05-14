@@ -103,16 +103,15 @@ export class RenderProduct extends Product {
 		}
 	}
 
-	canBuy(
-		possibility: { aval: boolean, text: string },
-	) {
-		this.setDisabled(this.buyButton,
-			(possibility.text === 'Невозможно купить'));
-		this.setText(this.buyButton, possibility.text);
+	canBuy(options: string) {
+		if (options === 'Невозможно купить')
+			this.setDisabled(this.buyButton, true);
+		else this.setDisabled(this.buyButton, false);
+		this.setText(this.buyButton, options);
 	}
 
 	render(productData: Partial<IProduct> | undefined,
-				 options?: { aval: boolean, text: string } | number) {
+				 options?: string | number) {
 		if (!productData) return this.container;
 
 		if (typeof options === 'number') {
