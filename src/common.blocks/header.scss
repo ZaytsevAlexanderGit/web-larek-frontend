@@ -4,9 +4,12 @@
 .header {
   height: $headerHeight;
   background-color: $primary;
+  //position: sticky;
+  //top: 0px;
+  //z-index: 20;
 
   &__container {
-    @include mixins.container(45px,45px);
+    @include mixins.container(45px, 45px);
     @include mixins.flex(row);
     align-items: center;
     justify-content: space-between;

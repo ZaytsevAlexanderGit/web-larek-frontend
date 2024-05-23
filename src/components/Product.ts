@@ -13,7 +13,6 @@ abstract class Product extends Component<IProduct> {
 	protected constructor(protected container: HTMLElement, events: IEvents) {
 		super(container);
 		this.events = events;
-
 		this.productTitle = ensureElement<HTMLElement>('.card__title', container);
 		this.productPrice = ensureElement<HTMLElement>('.card__price', container);
 	}
@@ -103,25 +102,25 @@ export class RenderProduct extends Product {
 		}
 	}
 
-	canBuy(options: string) {
-		if (options === 'Невозможно купить')
+	setByeOptions(index: number, price: number | null) {
+		let text = 'В корзину';
+		if (price === null) {
 			this.setDisabled(this.buyButton, true);
-		else this.setDisabled(this.buyButton, false);
-		this.setText(this.buyButton, options);
+			text = 'Невозможно купить';
+		} else this.setDisabled(this.buyButton, false);
+		if (index > 0) text = 'Удалить из корзины';
+		this.setText(this.buyButton, text);
 	}
 
 	render(productData: Partial<IProduct> | undefined,
-				 options?: string | number) {
+	) {
 		if (!productData) return this.container;
 
-		if (typeof options === 'number') {
-			if (options !== null && this.productBasketNumber) {
-				this.setText(this.productBasketNumber, options.toString());
-			}
-		} else {
-			if (options !== null && this.buyButton) {
-				this.canBuy(options);
-			}
+		if (this.productBasketNumber) {
+			this.setText(this.productBasketNumber, productData.indexInBasket);
+		}
+		if (this.buyButton) {
+			this.setByeOptions(productData.indexInBasket, productData.price);
 		}
 
 		super.render(productData);
