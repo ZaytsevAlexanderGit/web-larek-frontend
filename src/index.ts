@@ -106,8 +106,7 @@ events.on('products:changed', () => {
 
 // Поменялась корзина
 events.on('basket:changed', () => {
-	page.counter =
-		productData.items.filter((item) => item.indexInBasket > 0).length;
+	page.counter = productData.basketSize;
 });
 
 
@@ -122,8 +121,9 @@ events.on('product:select', (data: { id: string }) => {
 				category: foundedProduct.category,
 				price: foundedProduct.price,
 				description: foundedProduct.description,
+				indexInBasket: foundedProduct.indexInBasket,
 			},
-			productData.isAvailableToBuy(foundedProduct.id)),
+		),
 	});
 });
 
@@ -131,16 +131,14 @@ events.on('product:select', (data: { id: string }) => {
 events.on('basket:addProduct', (data: { id: string }) => {
 	productData.addToBasket(productData.getProduct(data.id));
 	modal.close();
-	page.counter =
-		productData.items.filter((item) => item.indexInBasket > 0).length;
+	page.counter = productData.basketSize;
 });
 
 // Добавление товара в корзину
 events.on('basket:toggleProduct', (data: { id: string }) => {
 	productData.toggleToBasket(data.id);
 	modal.close();
-	page.counter =
-		productData.items.filter((item) => item.indexInBasket > 0).length;
+	page.counter = productData.basketSize;
 });
 
 
@@ -159,7 +157,9 @@ events.on('basket:open', () => {
 					id: product.id,
 					title: product.title,
 					price: product.price,
-				}, product.indexInBasket);
+					indexInBasket: product.indexInBasket,
+				},
+			);
 		});
 		const total = productData.basketTotalPrice;
 		modal.render({
@@ -171,8 +171,7 @@ events.on('basket:open', () => {
 // Удаление товара из корзины
 events.on('basket:deleteProduct', (data: { id: string }) => {
 	productData.removeFromBasket(data.id);
-	page.counter =
-		productData.items.filter((item) => item.indexInBasket > 0).length;
+	page.counter = productData.basketSize;
 	events.emit('basket:open');
 });
 
@@ -228,8 +227,7 @@ events.on('contacts:submit', () => {
 				content: success.render({ total: productData.basketTotalPrice }),
 			});
 			productData.items.map((item) => item.indexInBasket = 0);
-			page.counter =
-				productData.items.filter((item) => item.indexInBasket > 0).length;
+			page.counter = productData.basketSize;
 		})
 		.catch((err) => {
 			alert(err);
@@ -249,6 +247,8 @@ events.on('modal:close', () => {
 	page.locked = false;
 	orderData.order = initialData;
 });
+
+//something
 
 //-----------------------------------------------
 // Запуск приложения

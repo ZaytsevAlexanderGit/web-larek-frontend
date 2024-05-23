@@ -21,6 +21,10 @@ export class ProductsData implements IProductsData {
 		this.events.emit('products:changed');
 	}
 
+	get basketSize(): number {
+		return this._items.filter((item) => item.indexInBasket > 0).length;
+	}
+
 	get basketTotalPrice(): number {
 		return this.items.reduce(
 			(accum, currentValue) => {
@@ -101,23 +105,6 @@ export class ProductsData implements IProductsData {
 		} else {
 			this.events.emit('basket:changed');
 		}
-	}
-
-	isInBasket(productId: string): boolean {
-		return ((this._items.filter((item) => item.indexInBasket > 0)).some(
-			(item) => item.id === productId));
-	}
-
-	isPossibleToBuy(productId: string): boolean {
-		return (this._items.find((item) => item.id === productId).price !==
-			null);
-	}
-
-	isAvailableToBuy(productId: string): string {
-		let options = 'В корзину';
-		if (!this.isPossibleToBuy(productId)) options = 'Невозможно купить';
-		if (this.isInBasket(productId)) options = 'Удалить из корзины';
-		return options;
 	}
 
 	updateIndexes(index: number) {
